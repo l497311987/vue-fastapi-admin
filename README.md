@@ -6,12 +6,10 @@
 
 <h1 align="center">vue-fastapi-admin</h1>
 
-[English](./README-en.md) | 简体中文
-
 基于 FastAPI + Vue3 + Naive UI 的现代化前后端分离开发平台，融合了 RBAC 权限管理、动态路由和 JWT 鉴权，助力中小型应用快速搭建，也可用于学习参考。
 
 ### 特性
-- **最流行技术栈**：基于 Python 3.11 和 FastAPI 高性能异步框架，结合 Vue3 和 Vite 等前沿技术进行开发，同时使用高效的 npm 包管理器 pnpm。
+- **最流行技术栈**：基于 Python 3.11(及以上) 和 FastAPI 高性能异步框架，结合 Vue3 和 Vite 等前沿技术进行开发，同时使用高效的 npm 包管理器 pnpm。
 - **代码规范**：项目内置丰富的规范插件，确保代码质量和一致性，有效提高团队协作效率。
 - **动态路由**：后端动态路由，结合 RBAC（Role-Based Access Control）权限模型，提供精细的菜单路由控制。
 - **JWT鉴权**：使用 JSON Web Token（JWT）进行身份验证和授权，增强应用的安全性。
@@ -24,25 +22,25 @@
 
 ### 登录页
 
-![image](https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/login.jpg)
+![image](./deploy/sample-picture/login.jpg)
 ### 工作台
 
-![image](https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/workbench.jpg)
+![image](./deploy/sample-picture/workbench.jpg)
 
 ### 用户管理
 
-![image](https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/user.jpg)
+![image](./deploy/sample-picture/user.jpg)
 ### 角色管理
 
-![image](https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/role.jpg)
+![image](./deploy/sample-picture/role.jpg)
 
 ### 菜单管理
 
-![image](https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/menu.jpg)
+![image](./deploy/sample-picture/menu.jpg)
 
 ### API管理
 
-![image](https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/api.jpg)
+![image](./deploy/sample-picture/api.jpg)
 
 ### 快速开始
 #### 方法一：dockerhub拉取镜像
@@ -218,26 +216,6 @@ pnpm dev
             ├── system     // 系统管理页面
             └── workbench  // 工作台页面
 ```
-
-### 进群交流
-进群的条件是给项目一个star，小小的star是作者维护下去的动力。
-
-你可以在群里提出任何疑问，我会尽快回复答疑。
-
-<img width="300" src="https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/group.jpg">
-
-## 打赏
-如果项目有帮助到你，可以请作者喝杯咖啡~
-
-<div style="display: flex">
-    <img src="https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/1.jpg" width="300">
-    <img src="https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/2.jpg" width="300">
-</div>
-
-## 定制开发
-如果有基于该项目的定制需求或其他合作，请添加下方微信，备注来意
-
-<img width="300" src="https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/3.jpg">
 
 ### Visitors Count
 
