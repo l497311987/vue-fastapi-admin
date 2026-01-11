@@ -17,6 +17,9 @@ importers:
       '@unocss/eslint-config':
         specifier: ^0.55.0
         version: 0.55.7(eslint@8.57.0)(typescript@5.5.4)
+      '@vicons/ionicons5':
+        specifier: ^0.12.0
+        version: 0.12.0
       '@vueuse/core':
         specifier: ^10.3.0
         version: 10.11.0(vue@3.4.34(typescript@5.5.4))
@@ -32,6 +35,9 @@ importers:
       dotenv:
         specifier: ^16.3.1
         version: 16.4.5
+      echarts:
+        specifier: ^5.4.3
+        version: 5.6.0
       eslint:
         specifier: ^8.46.0
         version: 8.57.0
@@ -55,7 +61,7 @@ importers:
         version: 5.5.4
       unocss:
         specifier: ^0.55.0
-        version: 0.55.7(postcss@5.2.18)(rollup@3.29.4)(vite@4.5.3(@types/node@22.0.0)(sass@1.77.8)(terser@5.31.3))
+        version: 0.55.7(postcss@8.4.40)(rollup@3.29.4)(vite@4.5.3(@types/node@22.0.0)(sass@1.77.8)(terser@5.31.3))
       unplugin-auto-import:
         specifier: ^0.16.6
         version: 0.16.7(@vueuse/core@10.11.0(vue@3.4.34(typescript@5.5.4)))(rollup@3.29.4)
@@ -533,6 +539,9 @@ packages:
     peerDependencies:
       vite: ^2.9.0 || ^3.0.0-0 || ^4.0.0
 
+  '@vicons/ionicons5@0.12.0':
+    resolution: {integrity: sha512-Iy1EUVRpX0WWxeu1VIReR1zsZLMc4fqpt223czR+Rpnrwu7pt46nbnC2ycO7ItI/uqDLJxnbcMC7FujKs9IfFA==}
+
   '@vitejs/plugin-vue@4.6.2':
     resolution: {integrity: sha512-kqf7SGFoG+80aZG6Pf+gsZIVvGSCKE98JbiWqcCV9cThtg91Jav0yvYFC9Zb+jKetNGF6ZKeoaxgZfND21fWKw==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -979,6 +988,9 @@ packages:
 
   duplexer@0.1.2:
     resolution: {integrity: sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==}
+
+  echarts@5.6.0:
+    resolution: {integrity: sha512-oTbVTsXfKuEhxftHqL5xprgLoc0k7uScAwtryCgWF6hPYFLRwOUHiFmHGCBKP5NPFNkDVopOieyUqYGH8Fa3kA==}
 
   ejs@3.1.10:
     resolution: {integrity: sha512-UeJmFfOrAQS8OJWPZ4qtgHyWExa088/MtK5UEyoJGFH67cDEXkZSviOiKRCZ4Xij0zxI3JECgYs3oKx+AizQBA==}
@@ -2244,6 +2256,9 @@ packages:
     peerDependencies:
       typescript: '>=4.2.0'
 
+  tslib@2.3.0:
+    resolution: {integrity: sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==}
+
   tslib@2.6.3:
     resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
 
@@ -2529,6 +2544,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zrender@5.6.1:
+    resolution: {integrity: sha512-OFXkDJKcrlx5su2XbzJvj/34Q3m6PvyCZkVPHGYpcCJ52ek4U/ymZyfuV1nKE23AyBJ51E/6Yr0mhZ7xGTO4ag==}
 
 snapshots:
 
@@ -2895,14 +2913,14 @@ snapshots:
       gzip-size: 6.0.0
       sirv: 2.0.4
 
-  '@unocss/postcss@0.55.7(postcss@5.2.18)':
+  '@unocss/postcss@0.55.7(postcss@8.4.40)':
     dependencies:
       '@unocss/config': 0.55.7
       '@unocss/core': 0.55.7
       css-tree: 2.3.1
       fast-glob: 3.3.2
       magic-string: 0.30.11
-      postcss: 5.2.18
+      postcss: 8.4.40
 
   '@unocss/preset-attributify@0.55.7':
     dependencies:
@@ -2986,6 +3004,8 @@ snapshots:
       vite: 4.5.3(@types/node@22.0.0)(sass@1.77.8)(terser@5.31.3)
     transitivePeerDependencies:
       - rollup
+
+  '@vicons/ionicons5@0.12.0': {}
 
   '@vitejs/plugin-vue@4.6.2(vite@4.5.3(@types/node@22.0.0)(sass@1.77.8)(terser@5.31.3))(vue@3.4.34(typescript@5.5.4))':
     dependencies:
@@ -3486,6 +3506,11 @@ snapshots:
   dotenv@16.4.5: {}
 
   duplexer@0.1.2: {}
+
+  echarts@5.6.0:
+    dependencies:
+      tslib: 2.3.0
+      zrender: 5.6.1
 
   ejs@3.1.10:
     dependencies:
@@ -4900,6 +4925,8 @@ snapshots:
     dependencies:
       typescript: 5.5.4
 
+  tslib@2.3.0: {}
+
   tslib@2.6.3: {}
 
   type-check@0.4.0:
@@ -4995,13 +5022,13 @@ snapshots:
 
   universalify@2.0.1: {}
 
-  unocss@0.55.7(postcss@5.2.18)(rollup@3.29.4)(vite@4.5.3(@types/node@22.0.0)(sass@1.77.8)(terser@5.31.3)):
+  unocss@0.55.7(postcss@8.4.40)(rollup@3.29.4)(vite@4.5.3(@types/node@22.0.0)(sass@1.77.8)(terser@5.31.3)):
     dependencies:
       '@unocss/astro': 0.55.7(rollup@3.29.4)(vite@4.5.3(@types/node@22.0.0)(sass@1.77.8)(terser@5.31.3))
       '@unocss/cli': 0.55.7(rollup@3.29.4)
       '@unocss/core': 0.55.7
       '@unocss/extractor-arbitrary-variants': 0.55.7
-      '@unocss/postcss': 0.55.7(postcss@5.2.18)
+      '@unocss/postcss': 0.55.7(postcss@8.4.40)
       '@unocss/preset-attributify': 0.55.7
       '@unocss/preset-icons': 0.55.7
       '@unocss/preset-mini': 0.55.7
@@ -5257,3 +5284,7 @@ snapshots:
       yargs-parser: 21.1.1
 
   yocto-queue@0.1.0: {}
+
+  zrender@5.6.1:
+    dependencies:
+      tslib: 2.3.0
