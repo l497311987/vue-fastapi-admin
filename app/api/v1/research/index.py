@@ -1,19 +1,17 @@
 import logging
 
 from fastapi import APIRouter, Body, Query
-from app.controllers.dept import dept_controller
-from app.controllers.user import user_controller
+from app.controllers.index import index_controller
 from app.schemas.base import Fail, Success, SuccessExtra
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(prefix="/index", tags=["index"])
 
-@router.get("/index/hk", summary="香港指数分析")
+
+@router.get("/hk", summary="香港指数分析")
 async def get_index_hk(
-    index_id: int = Query(..., description="指数ID"),
+        index_id: str = Query(..., description="指数ID")
 ):
-    return Success(data=index_id)
-
-
-
+    index_info, stats_df = await index_controller.get_index_data(index_id=index_id)
+    return Success(data=index_info.json())
