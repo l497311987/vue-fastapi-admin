@@ -158,18 +158,18 @@ pnpm dev
 
 ```
 ├── app                   // 应用程序目录
-│   ├── api               // API接口目录
+│   ├── api               // API接口目录，可通过http://localhost:9999/docs 查看API详情
 │   │   └── v1            // 版本1的API接口
 │   │       ├── apis      // API相关接口
 │   │       ├── base      // 基础信息接口
 │   │       ├── menus     // 菜单相关接口
 │   │       ├── roles     // 角色相关接口
 │   │       └── users     // 用户相关接口
-│   ├── controllers       // 控制器目录
-│   ├── core              // 核心功能模块
+│   ├── controllers       // 控制器目录，定义http接口
+│   ├── core              // 核心功能模块，service层，处理复杂业务逻辑
 │   ├── log               // 日志目录
-│   ├── models            // 数据模型目录
-│   ├── schemas           // 数据模式/结构定义
+│   ├── models            // 数据模型目录，用于数据库ORM
+│   ├── schemas           // 数据模式/结构定义，fastapi后端中数据类型验证
 │   ├── settings          // 配置设置目录
 │   └── utils             // 工具类目录
 ├── deploy                // 部署相关目录
