@@ -45,7 +45,7 @@
           </template>
           <template #extra>
             <n-text depth="3">
-              例如：上证指数 (000001)、深证成指 (399001)
+              示例：HSTECH (恒生科技指数)
             </n-text>
           </template>
         </n-empty>
@@ -70,6 +70,18 @@
             </div>
             
             <n-space>
+              <n-select
+                v-model:value="chartType"
+                :options="chartTypeOptions"
+                size="small"
+                style="width: 120px;"
+              />
+              <n-select
+                v-model:value="volatilityWindow"
+                :options="volatilityOptions"
+                size="small"
+                style="width: 120px;"
+              />
               <n-button 
                 size="small" 
                 @click="downloadChart"
@@ -91,7 +103,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue'
 import { 
   NInput, 
   NButton, 
@@ -100,7 +112,8 @@ import {
   NEmpty, 
   NH3,
   NText,
-  NSpace
+  NSpace,
+  NSelect
 } from 'naive-ui'
 import * as echarts from 'echarts'
 import { 
@@ -110,13 +123,29 @@ import {
   Download as DownloadIcon
 } from '@vicons/ionicons5'
 
+import research from '@/api/research'
+
 // 指数ID
-const indexId = ref('000001')
-const indexName = ref('上证指数')
+const indexId = ref('HSTECH')
+const indexName = ref('恒生科技指数')
 const loading = ref(false)
+
+// 图表类型和波动率窗口
+const chartType = ref('price')
+const volatilityWindow = ref(20)
+const chartTypeOptions = [
+  { label: '价格走势', value: 'price' },
+  { label: '价格+波动率', value: 'both' }
+]
+const volatilityOptions = [
+  { label: '20日波动率', value: 20 },
+  { label: '30日波动率', value: 30 },
+  { label: '60日波动率', value: 60 }
+]
 
 // 图表数据
 const chartData = ref([])
+const rawData = ref([])
 const chartRef = ref(null)
 let chartInstance = null
 
@@ -125,44 +154,132 @@ const currentPrice = ref(0)
 const currentChange = ref(0)
 const currentChangePercent = ref(0)
 
-// 热门指数映射
-const indexMap = {
-  '000001': '上证指数',
-  '399001': '深证成指',
-  '399006': '创业板指',
-  '000300': '沪深300',
-  '000905': '中证500',
-  'HSI': '恒生指数',
-  'SPX': '标普500',
-  'IXIC': '纳斯达克',
-  'DJI': '道琼斯',
-  'N225': '日经225'
-}
-
 // 获取数据
 const fetchData = async () => {
   if (!indexId.value) return
   
   loading.value = true
   
-  // 设置指数名称
-  indexName.value = indexMap[indexId.value] || `指数 ${indexId.value}`
-  
-  // 模拟API调用延迟
-  await new Promise(resolve => setTimeout(resolve, 800))
-  
-  // 生成模拟数据
-  generateMockData()
-  
-  loading.value = false
-  
-  // 渲染图表
-  nextTick(() => {
-    renderChart()
-  })
+  try {
+    const params = {
+      index_id: indexId.value
+    }
+    
+    const ret = await research.get_index_info(params)
+    
+    if (ret.code === 200) {
+      const data = JSON.parse(ret.data)
+      indexName.value = indexId.value === 'HSTECH' ? '恒生科技指数' : `指数 ${indexId.value}`
+      
+      // 处理原始数据
+      processRawData(data)
+      
+      // 生成图表数据
+      generateChartData()
+      
+      // 渲染图表
+      nextTick(() => {
+        renderChart()
+      })
+    } else {
+      console.error('API返回错误:', ret.msg)
+      // 使用模拟数据作为后备
+      generateMockData()
+    }
+  } catch (error) {
+    console.error('获取数据失败:', error)
+    // 使用模拟数据作为后备
+    generateMockData()
+  } finally {
+    loading.value = false
+  }
 }
 
-// 生成模拟数据
+// 处理原始数据
+const processRawData = (data) => {
+  const priceSeries = data.price_series || []
+  
+  // 按时间排序
+  priceSeries.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+  
+  rawData.value = priceSeries.map(item => ({
+    date: item.timestamp.split('T')[0],
+    timestamp: new Date(item.timestamp),
+    open: item.open,
+    high: item.high,
+    low: item.low,
+    close: item.close,
+    volume: item.volume,
+    return: 0 // 稍后计算
+  }))
+  
+  // 计算日收益率
+  for (let i = 1; i < rawData.value.length; i++) {
+    const prevClose = rawData.value[i - 1].close
+    const currClose = rawData.value[i].close
+    rawData.value[i].return = (currClose - prevClose) / prevClose
+  }
+}
+
+// 生成图表数据
+const generateChartData = () => {
+  if (rawData.value.length === 0) {
+    chartData.value = []
+    return
+  }
+  
+  const data = []
+  
+  // 计算滚动波动率（年化）
+  for (let i = volatilityWindow.value - 1; i < rawData.value.length; i++) {
+    const item = rawData.value[i]
+    const returns = []
+    
+    // 获取前N日的收益率
+    for (let j = i - volatilityWindow.value + 1; j <= i; j++) {
+      if (j >= 0 && rawData.value[j].return !== undefined) {
+        returns.push(rawData.value[j].return)
+      }
+    }
+    
+    // 计算标准差并年化（假设252个交易日）
+    let volatility = 0
+    if (returns.length > 1) {
+      const mean = returns.reduce((sum, r) => sum + r, 0) / returns.length
+      const variance = returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / returns.length
+      const stdDev = Math.sqrt(variance)
+      volatility = stdDev * Math.sqrt(252) * 100 // 转换为百分比
+    }
+    
+    data.push({
+      date: item.date,
+      timestamp: item.timestamp,
+      price: item.close,
+      change: i > 0 ? item.close - rawData.value[i-1].close : 0,
+      changePercent: i > 0 ? ((item.close - rawData.value[i-1].close) / rawData.value[i-1].close * 100) : 0,
+      volatility: volatility,
+      open: item.open,
+      high: item.high,
+      low: item.low,
+      volume: item.volume
+    })
+  }
+  
+  chartData.value = data
+  
+  // 计算当前价格和涨跌幅
+  if (data.length >= 2) {
+    currentPrice.value = data[data.length - 1].price
+    currentChange.value = data[data.length - 1].change
+    currentChangePercent.value = data[data.length - 1].changePercent
+  } else if (data.length === 1) {
+    currentPrice.value = data[0].price
+    currentChange.value = data[0].change
+    currentChangePercent.value = data[0].changePercent
+  }
+}
+
+// 模拟数据生成（备用）
 const generateMockData = () => {
   const data = []
   const basePrice = 3000 + Math.random() * 2000
@@ -173,29 +290,35 @@ const generateMockData = () => {
     const date = new Date()
     date.setDate(date.getDate() - i)
     
-    // 生成随机价格变化
     const change = (Math.random() - 0.5) * 80
     currentPrice += change
     
-    // 防止价格偏离太远
     if (currentPrice < basePrice * 0.7) currentPrice = basePrice * 0.7
     if (currentPrice > basePrice * 1.3) currentPrice = basePrice * 1.3
     
+    // 模拟波动率
+    const volatility = Math.random() * 30 + 10
+    
     data.push({
-      date: date.toLocaleDateString(),
+      date: date.toISOString().split('T')[0],
+      timestamp: date,
       price: currentPrice,
       change: change,
-      changePercent: (change / (currentPrice - change) * 100)
+      changePercent: (change / (currentPrice - change) * 100),
+      volatility: volatility,
+      open: currentPrice - Math.random() * 50,
+      high: currentPrice + Math.random() * 50,
+      low: currentPrice - Math.random() * 50,
+      volume: Math.random() * 1000000
     })
   }
   
   chartData.value = data
   
-  // 计算当前价格和涨跌幅
   if (data.length >= 2) {
     currentPrice.value = data[data.length - 1].price
-    currentChange.value = data[data.length - 1].price - data[data.length - 2].price
-    currentChangePercent.value = (currentChange.value / data[data.length - 2].price) * 100
+    currentChange.value = data[data.length - 1].change
+    currentChangePercent.value = data[data.length - 1].changePercent
   }
 }
 
@@ -213,41 +336,112 @@ const renderChart = () => {
   
   const dates = chartData.value.map(item => item.date)
   const prices = chartData.value.map(item => item.price)
+  const volatilities = chartData.value.map(item => item.volatility)
+  
+  const series = []
+  
+  // 价格系列
+  series.push({
+    name: '指数点位',
+    type: 'line',
+    data: prices,
+    smooth: true,
+    yAxisIndex: 0,
+    lineStyle: {
+      width: 3,
+      color: '#1890ff'
+    },
+    itemStyle: {
+      color: '#1890ff'
+    },
+    areaStyle: {
+      color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+        {
+          offset: 0,
+          color: 'rgba(24, 144, 255, 0.5)'
+        },
+        {
+          offset: 1,
+          color: 'rgba(24, 144, 255, 0.1)'
+        }
+      ])
+    },
+    markPoint: {
+      data: [
+        { type: 'max', name: '最高' },
+        { type: 'min', name: '最低' }
+      ]
+    }
+  })
+  
+  // 波动率系列（如果选择显示）
+  if (chartType.value === 'both') {
+    series.push({
+      name: '波动率',
+      type: 'line',
+      data: volatilities,
+      yAxisIndex: 1,
+      smooth: true,
+      lineStyle: {
+        width: 2,
+        color: '#d46b08'
+      },
+      itemStyle: {
+        color: '#d46b08'
+      }
+    })
+  }
   
   const option = {
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'axis',
       formatter: (params) => {
-        const data = params[0]
-        const index = data.dataIndex
-        const item = chartData.value[index]
+        let html = `<div style="font-weight: bold; margin-bottom: 5px">${params[0].axisValue}</div>`
         
-        return `
-          <div style="font-weight: bold; margin-bottom: 5px">${item.date}</div>
-          <div>
-            收盘: <span style="font-weight:bold">${item.price.toFixed(2)}</span>
-          </div>
-          <div>
-            涨跌: <span style="color:${item.change >= 0 ? '#18a058' : '#d03050'};font-weight:bold">
-              ${item.change >= 0 ? '+' : ''}${item.change.toFixed(2)} (${item.changePercent.toFixed(2)}%)
-            </span>
-          </div>
-        `
+        params.forEach(param => {
+          if (param.seriesName === '指数点位') {
+            const index = param.dataIndex
+            const item = chartData.value[index]
+            html += `
+              <div>
+                收盘: <span style="font-weight:bold">${item.price.toFixed(2)}</span>
+              </div>
+              <div>
+                涨跌: <span style="color:${item.change >= 0 ? '#18a058' : '#d03050'};font-weight:bold">
+                  ${item.change >= 0 ? '+' : ''}${item.change.toFixed(2)} (${item.changePercent.toFixed(2)}%)
+                </span>
+              </div>
+            `
+          } else if (param.seriesName === '波动率') {
+            html += `
+              <div>
+                波动率: <span style="color:#d46b08;font-weight:bold">${param.value.toFixed(2)}%</span>
+              </div>
+            `
+          }
+        })
+        
+        return html
       }
+    },
+    legend: {
+      data: chartType.value === 'both' ? ['指数点位', '波动率'] : ['指数点位'],
+      top: 10
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '10%',
-      top: '10%',
+      top: '15%',
       containLabel: true
     },
     xAxis: {
       type: 'category',
       data: dates,
       axisLabel: {
-        color: '#666'
+        color: '#666',
+        rotate: 45
       },
       axisLine: {
         lineStyle: {
@@ -255,55 +449,61 @@ const renderChart = () => {
         }
       }
     },
-    yAxis: {
-      type: 'value',
-      axisLabel: {
-        formatter: '{value}',
-        color: '#666'
-      },
-      axisLine: {
-        lineStyle: {
-          color: '#ddd'
-        }
-      },
-      splitLine: {
-        lineStyle: {
-          type: 'dashed',
-          color: '#e8e8e8'
-        }
-      }
-    },
-    series: [
+    yAxis: [
       {
+        type: 'value',
         name: '指数点位',
-        type: 'line',
-        data: prices,
-        smooth: true,
-        lineStyle: {
-          width: 3,
+        position: 'left',
+        axisLabel: {
+          formatter: '{value}',
           color: '#1890ff'
         },
-        itemStyle: {
-          color: '#1890ff'
+        axisLine: {
+          lineStyle: {
+            color: '#1890ff'
+          },
+          show: true
         },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            {
-              offset: 0,
-              color: 'rgba(24, 144, 255, 0.5)'
-            },
-            {
-              offset: 1,
-              color: 'rgba(24, 144, 255, 0.1)'
-            }
-          ])
-        },
-        markPoint: {
-          data: [
-            { type: 'max', name: '最高' },
-            { type: 'min', name: '最低' }
-          ]
+        splitLine: {
+          lineStyle: {
+            type: 'dashed',
+            color: '#e8e8e8'
+          }
         }
+      },
+      ...(chartType.value === 'both' ? [{
+        type: 'value',
+        name: '波动率 (%)',
+        position: 'right',
+        axisLabel: {
+          formatter: '{value}%',
+          color: '#d46b08'
+        },
+        axisLine: {
+          lineStyle: {
+            color: '#d46b08'
+          },
+          show: true
+        },
+        splitLine: {
+          show: false
+        }
+      }] : [])
+    ],
+    series: series,
+    dataZoom: [
+      {
+        type: 'inside',
+        xAxisIndex: 0,
+        start: 0,
+        end: 100
+      },
+      {
+        type: 'slider',
+        xAxisIndex: 0,
+        start: 0,
+        end: 100,
+        bottom: 20
       }
     ]
   }
@@ -336,6 +536,16 @@ const downloadChart = () => {
   link.download = `${indexName.value}_${indexId.value}_${new Date().toISOString().slice(0, 10)}.png`
   link.click()
 }
+
+// 监听图表类型和波动率窗口的变化
+watch([chartType, volatilityWindow], () => {
+  if (rawData.value.length > 0) {
+    generateChartData()
+    nextTick(() => {
+      renderChart()
+    })
+  }
+})
 
 // 生命周期
 onMounted(() => {
