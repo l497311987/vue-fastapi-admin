@@ -345,7 +345,7 @@ const renderChart = () => {
     name: '指数点位',
     type: 'line',
     data: prices,
-    smooth: true,
+    smooth: false,
     yAxisIndex: 0,
     lineStyle: {
       width: 3,
@@ -381,7 +381,7 @@ const renderChart = () => {
       type: 'line',
       data: volatilities,
       yAxisIndex: 1,
-      smooth: true,
+      smooth: false,
       lineStyle: {
         width: 2,
         color: '#d46b08'
