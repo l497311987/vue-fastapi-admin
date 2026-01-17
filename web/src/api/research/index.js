@@ -2,5 +2,7 @@ import { request } from '@/utils'
 
 
 export default {
-  get_index_info: (params = {}) => request.get('/research/index/hk', { params }),
+  get_index_his_data: (params = {}) => request.get('/research/index/hk/his', { params }),
+  get_index_realtime_data: () => request.get('/research/index/hk/realtime'),
+
 }

@@ -14,7 +14,7 @@ async def get_index_hk_his(
         index_id: str = Query(..., description="指数ID")
 ):
     index_info, stats_df = await hk_index_controller.get_index_his_data(index_id=index_id)
-    return Success(data=index_info)
+    return Success(data=index_info.json())
 
 
 @router.get("/hk/realtime", summary="实时指数分析数据")

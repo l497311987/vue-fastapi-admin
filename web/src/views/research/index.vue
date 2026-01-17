@@ -104,6 +104,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { 
   NInput, 
   NButton, 
@@ -125,13 +126,15 @@ import {
 
 import research from '@/api/research'
 
+const route = useRoute()
+
 // 指数ID
 const indexId = ref('HSTECH')
 const indexName = ref('恒生科技指数')
 const loading = ref(false)
 
 // 图表类型和波动率窗口
-const chartType = ref('price')
+const chartType = ref('both')
 const volatilityWindow = ref(20)
 const chartTypeOptions = [
   { label: '价格走势', value: 'price' },
@@ -165,7 +168,7 @@ const fetchData = async () => {
       index_id: indexId.value
     }
     
-    const ret = await research.get_index_info(params)
+    const ret = await research.get_index_his_data(params)
     
     if (ret.code === 200) {
       const data = JSON.parse(ret.data)
@@ -176,11 +179,6 @@ const fetchData = async () => {
       
       // 生成图表数据
       generateChartData()
-      
-      // 渲染图表
-      nextTick(() => {
-        renderChart()
-      })
     } else {
       console.error('API返回错误:', ret.msg)
       // 使用模拟数据作为后备
@@ -192,6 +190,13 @@ const fetchData = async () => {
     generateMockData()
   } finally {
     loading.value = false
+    // 等待 loading 状态变化后 DOM 更新完成，再渲染图表
+    nextTick(() => {
+      // 使用 setTimeout 确保 DOM 完全渲染
+      setTimeout(() => {
+        renderChart()
+      }, 0)
+    })
   }
 }
 
@@ -279,52 +284,18 @@ const generateChartData = () => {
   }
 }
 
-// 模拟数据生成（备用）
-const generateMockData = () => {
-  const data = []
-  const basePrice = 3000 + Math.random() * 2000
-  let currentPrice = basePrice
-  
-  // 生成最近30天的数据
-  for (let i = 30; i >= 0; i--) {
-    const date = new Date()
-    date.setDate(date.getDate() - i)
-    
-    const change = (Math.random() - 0.5) * 80
-    currentPrice += change
-    
-    if (currentPrice < basePrice * 0.7) currentPrice = basePrice * 0.7
-    if (currentPrice > basePrice * 1.3) currentPrice = basePrice * 1.3
-    
-    // 模拟波动率
-    const volatility = Math.random() * 30 + 10
-    
-    data.push({
-      date: date.toISOString().split('T')[0],
-      timestamp: date,
-      price: currentPrice,
-      change: change,
-      changePercent: (change / (currentPrice - change) * 100),
-      volatility: volatility,
-      open: currentPrice - Math.random() * 50,
-      high: currentPrice + Math.random() * 50,
-      low: currentPrice - Math.random() * 50,
-      volume: Math.random() * 1000000
-    })
-  }
-  
-  chartData.value = data
-  
-  if (data.length >= 2) {
-    currentPrice.value = data[data.length - 1].price
-    currentChange.value = data[data.length - 1].change
-    currentChangePercent.value = data[data.length - 1].changePercent
-  }
-}
 
 // 渲染图表
 const renderChart = () => {
-  if (!chartRef.value || chartData.value.length === 0) return
+  if (chartData.value.length === 0) return
+  
+  // 如果 chartRef 还没准备好，等待后重试
+  if (!chartRef.value) {
+    setTimeout(() => {
+      renderChart()
+    }, 50)
+    return
+  }
   
   // 销毁之前的图表实例
   if (chartInstance) {
@@ -549,6 +520,13 @@ watch([chartType, volatilityWindow], () => {
 
 // 生命周期
 onMounted(() => {
+  // 检查是否有路由参数
+  if (route.query.symbol) {
+    indexId.value = route.query.symbol
+    if (route.query.name) {
+      indexName.value = route.query.name
+    }
+  }
   // 初始加载数据
   fetchData()
 })
