@@ -174,6 +174,44 @@ async def init_menus():
             keepalive=False,
             redirect="",
         )
+        # 创建研究页面
+        research_parent_menu = await Menu.create(
+            menu_type=MenuType.CATALOG,
+            name="指数研究",
+            path="/research",
+            order=3,
+            parent_id=0,
+            icon="mdi-account-search-outline",
+            is_hidden=False,
+            component="Layout",
+            keepalive=False,
+            redirect="/research/realtime",
+        )
+        research_children_menu = [
+            Menu(
+                menu_type=MenuType.MENU,
+                name="实时行情",
+                path="realtime",
+                order=1,
+                parent_id=research_parent_menu.id,
+                icon="material-symbols:person-outline-rounded",
+                is_hidden=False,
+                component="/research/realtime",
+                keepalive=False,
+            ),
+            Menu(
+                menu_type=MenuType.MENU,
+                name="指数分析",
+                path="analyse",
+                order=2,
+                parent_id=research_parent_menu.id,
+                icon="mdi-account-search-outline",
+                is_hidden=False,
+                component="/research/analyse",
+                keepalive=False,
+            ),
+        ]
+        await Menu.bulk_create(research_children_menu)
 
 
 async def init_apis():
