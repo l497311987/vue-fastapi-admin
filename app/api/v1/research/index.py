@@ -29,23 +29,5 @@ async def get_market_overview():
     analyzer = MarketAnalyzer()
     # 测试获取市场概览
     overview = analyzer.get_market_overview()
-    data = {
-        "date": str(overview.date),  # 确保日期是可序列化的字符串
-        "summary": {
-            "index_count": len(overview.indices),
-            "up_count": overview.up_count,
-            "down_count": overview.down_count,
-            "total_amount": float(round(overview.total_amount, 2))
-        },
-        "indices": [
-            {
-                "name": idx.name,
-                "current": float(round(idx.current, 2)),
-                "change": float(round(idx.change_pct, 2)),
-                "change_display": f"{idx.change_pct:+.2f}%",
-                "direction": "up" if idx.change_pct >= 0 else "down"
-            }
-            for idx in overview.indices
-        ]
-    },
-    return Success(data=data)
+    # data = overview.to_dict()
+    return Success(data=overview.model_dump())
