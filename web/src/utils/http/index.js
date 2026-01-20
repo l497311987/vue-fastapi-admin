@@ -3,7 +3,7 @@ import { resReject, resResolve, reqReject, reqResolve } from './interceptors'
 
 export function createAxios(options = {}) {
   const defaultOptions = {
-    timeout: 12000,
+    timeout: 180000, // 3分钟
   }
   const service = axios.create({
     ...defaultOptions,

@@ -14,6 +14,8 @@ import logging
 import time
 from datetime import datetime
 from typing import Optional, Dict, Any, List
+
+from click import prompt
 from pydantic import BaseModel, Field
 import akshare as ak
 import pandas as pd
@@ -60,6 +62,7 @@ class SectorInfo(BaseModel):
 class MarketOverview(BaseModel):
     """市场概览数据"""
     date: str  # 日期
+    update_time: str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     indices: List[MarketIndex] = []  # 主要指数
     up_count: int = 0  # 上涨家数
     down_count: int = 0  # 下跌家数
@@ -123,7 +126,7 @@ class MarketAnalyzer:
         # 1. 获取主要指数行情
         overview.indices = self._get_main_indices()
 
-        # 2. 获取涨跌统计
+        # 2. 获取涨跌统计  耗时比较多
         self._get_market_statistics(overview)
 
         # 3. 获取板块涨跌榜
@@ -131,7 +134,7 @@ class MarketAnalyzer:
 
         # 4. 获取北向资金（可选）
         # self._get_north_flow(overview)
-
+        overview.update_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         return overview
 
     def _call_akshare_with_retry(self, fn, name: str, attempts: int = 2):
@@ -205,7 +208,8 @@ class MarketAnalyzer:
             logger.info("[大盘] 获取市场涨跌统计...")
 
             # 获取全部A股实时行情
-            df = self._call_akshare_with_retry(ak.stock_zh_a_spot_em, "A股实时行情", attempts=2)
+            # df = self._call_akshare_with_retry(ak.stock_zh_a_spot_em, "A股实时行情", attempts=2)
+            df = self._call_akshare_with_retry(ak.stock_zh_a_spot, "A股实时行情", attempts=2)
 
             if df is not None and not df.empty:
                 # 涨跌统计
@@ -540,6 +544,8 @@ if __name__ == "__main__":
 
     # 测试获取市场概览
     overview = analyzer.get_market_overview()
+    prompt = analyzer._build_review_prompt(overview, [])
+    print(prompt)
     print(f"\n=== 市场概览 ===")
     print(f"日期: {overview.date}")
     print(f"指数数量: {len(overview.indices)}")
