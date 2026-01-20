@@ -120,7 +120,7 @@
               <template #header>
                 <span font-bold>领涨板块</span>
               </template>
-              <div v-for="(sector, idx) in marketData.top_sectors" :key="idx" flex justify-between items-center py-5>
+              <div v-for="(sector, idx) in marketData.top_sectors" :key="idx" flex items-center gap-10 py-5>
                 <span>{{ sector.name }}</span>
                 <n-tag type="error" size="small">+{{ sector.change_pct?.toFixed(2) }}%</n-tag>
               </div>
@@ -129,7 +129,7 @@
               <template #header>
                 <span font-bold>领跌板块</span>
               </template>
-              <div v-for="(sector, idx) in marketData.bottom_sectors" :key="idx" flex justify-between items-center py-5>
+              <div v-for="(sector, idx) in marketData.bottom_sectors" :key="idx" flex items-center gap-10 py-5>
                 <span>{{ sector.name }}</span>
                 <n-tag type="success" size="small">{{ sector.change_pct?.toFixed(2) }}%</n-tag>
               </div>
