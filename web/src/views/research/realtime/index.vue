@@ -65,7 +65,8 @@
         <div class="card-header">
           <span class="symbol">{{ item.symbol }}</span>
           <n-tag 
-            :type="item.change > 0 ? 'success' : item.change < 0 ? 'error' : 'default'" 
+            <!-- 根据涨跌情况设置标签类型, success 是绿色，error是红色 -->
+            :type="item.change > 0 ? 'error' : item.change < 0 ? 'success' : 'default'" 
             size="small"
             round
           >
@@ -256,11 +257,14 @@ onUnmounted(() => {
 }
 
 .card-up {
-  border-left: 4px solid #18a058;
+  /* border-left: 4px solid #18a058;   */
+  border-left: 4px solid #d03050;
+
 }
 
 .card-down {
-  border-left: 4px solid #d03050;
+  /* border-left: 4px solid #d03050; */
+  border-left: 4px solid #18a058;
 }
 
 .card-header {
@@ -293,11 +297,13 @@ onUnmounted(() => {
 }
 
 .price-up {
-  color: #18a058;
+  /* color: #18a058; */
+  color: #d03050;
 }
 
 .price-down {
-  color: #d03050;
+  /* color: #d03050; */
+  color: #18a058;
 }
 
 .card-change {
@@ -307,11 +313,13 @@ onUnmounted(() => {
 }
 
 .change-up {
-  color: #18a058;
+  /* color: #18a058; */
+  color: #d03050;
 }
 
 .change-down {
-  color: #d03050;
+  /* color: #d03050; */
+  color: #18a058;
 }
 
 .card-details {
@@ -336,10 +344,12 @@ onUnmounted(() => {
 }
 
 .detail-row .value.high {
-  color: #18a058;
+  /* color: #18a058; */
+  color: #d03050;
 }
 
 .detail-row .value.low {
-  color: #d03050;
+  /* color: #d03050; */
+  color: #18a058;
 }
 </style>

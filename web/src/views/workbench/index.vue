@@ -78,7 +78,7 @@
               </template>
               <div flex justify-around text-center>
                 <div>
-                  <p text-24 font-bold text-green-500>{{ marketData.up_count }}</p>
+                  <p text-24 font-bold text-red-500>{{ marketData.up_count }}</p>
                   <p text-12 op-60>上涨</p>
                 </div>
                 <div>
@@ -86,7 +86,7 @@
                   <p text-12 op-60>平盘</p>
                 </div>
                 <div>
-                  <p text-24 font-bold text-red-500>{{ marketData.down_count }}</p>
+                  <p text-24 font-bold text-green-500>{{ marketData.down_count }}</p>
                   <p text-12 op-60>下跌</p>
                 </div>
                 <div>
