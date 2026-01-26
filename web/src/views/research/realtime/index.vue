@@ -65,7 +65,6 @@
         <div class="card-header">
           <span class="symbol">{{ item.symbol }}</span>
           <n-tag 
-            <!-- 根据涨跌情况设置标签类型, success 是绿色，error是红色 -->
             :type="item.change > 0 ? 'error' : item.change < 0 ? 'success' : 'default'" 
             size="small"
             round
